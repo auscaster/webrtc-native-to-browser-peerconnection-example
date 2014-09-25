@@ -34,9 +34,9 @@
 
 #include "talk/base/thread.h"
 
-class CustomSocketServer : public talk_base::PhysicalSocketServer {
+class CustomSocketServer : public rtc::PhysicalSocketServer {
  public:
-  CustomSocketServer(talk_base::Thread* thread, GtkMainWnd* wnd)
+  CustomSocketServer(rtc::Thread* thread, GtkMainWnd* wnd)
       : thread_(thread), wnd_(wnd), conductor_(NULL), client_(NULL) {}
   virtual ~CustomSocketServer() {}
 
@@ -57,12 +57,12 @@ class CustomSocketServer : public talk_base::PhysicalSocketServer {
         client_ != NULL && !client_->is_connected()) {
       thread_->Quit();
     }
-    return talk_base::PhysicalSocketServer::Wait(0/*cms == -1 ? 1 : cms*/,
+    return rtc::PhysicalSocketServer::Wait(0/*cms == -1 ? 1 : cms*/,
                                                  process_io);
   }
 
  protected:
-  talk_base::Thread* thread_;
+  rtc::Thread* thread_;
   GtkMainWnd* wnd_;
   Conductor* conductor_;
   PeerConnectionClient* client_;
@@ -89,15 +89,15 @@ int main(int argc, char* argv[]) {
   GtkMainWnd wnd(FLAG_server, FLAG_port, FLAG_autoconnect, FLAG_autocall);
   wnd.Create();
 
-  talk_base::AutoThread auto_thread;
-  talk_base::Thread* thread = talk_base::Thread::Current();
+  rtc::AutoThread auto_thread;
+  rtc::Thread* thread = rtc::Thread::Current();
   CustomSocketServer socket_server(thread, &wnd);
   thread->set_socketserver(&socket_server);
 
   // Must be constructed after we set the socketserver.
   PeerConnectionClient client;
-  talk_base::scoped_refptr<Conductor> conductor(
-      new talk_base::RefCountedObject<Conductor>(&client, &wnd));
+  rtc::scoped_refptr<Conductor> conductor(
+      new rtc::RefCountedObject<Conductor>(&client, &wnd));
   socket_server.set_client(&client);
   socket_server.set_conductor(conductor);
 

@@ -37,7 +37,7 @@
 #include "talk/base/logging.h"
 #include "talk/base/stringutils.h"
 
-using talk_base::sprintfn;
+using rtc::sprintfn;
 
 namespace {
 

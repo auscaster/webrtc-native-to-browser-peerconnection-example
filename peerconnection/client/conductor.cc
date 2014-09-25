@@ -30,9 +30,9 @@
 #include <utility>
 
 #include "talk/app/webrtc/videosourceinterface.h"
-#include "talk/base/common.h"
-#include "talk/base/json.h"
-#include "talk/base/logging.h"
+#include "webrtc/base/common.h"
+#include "webrtc/base/json.h"
+#include "webrtc/base/logging.h"
 #include "talk/examples/peerconnection/client/defaults.h"
 #include "talk/media/devices/devicemanager.h"
 
@@ -50,7 +50,7 @@ class DummySetSessionDescriptionObserver
  public:
   static DummySetSessionDescriptionObserver* Create() {
     return
-        new talk_base::RefCountedObject<DummySetSessionDescriptionObserver>();
+        new rtc::RefCountedObject<DummySetSessionDescriptionObserver>();
   }
   virtual void OnSuccess() {
     LOG(INFO) << __FUNCTION__;
@@ -110,6 +110,7 @@ bool Conductor::InitializePeerConnection() {
   peer_connection_ = peer_connection_factory_->CreatePeerConnection(servers,
                                                                     &constraints_,
                                                                     NULL,
+																	NULL,
                                                                     this);
   if (!peer_connection_.get()) {
     main_wnd_->MessageBox("Error",
@@ -277,7 +278,7 @@ void Conductor::OnMessageFromPeer(int peer_id, const std::string& message) {
       LOG(WARNING) << "Can't parse received message.";
       return;
     }
-    talk_base::scoped_ptr<webrtc::IceCandidateInterface> candidate(
+    rtc::scoped_ptr<webrtc::IceCandidateInterface> candidate(
         webrtc::CreateIceCandidate(sdp_mid, sdp_mlineindex, sdp));
     if (!candidate.get()) {
       LOG(WARNING) << "Can't parse received candidate message.";
@@ -336,7 +337,7 @@ void Conductor::ConnectToPeer(int peer_id) {
 }
 
 cricket::VideoCapturer* Conductor::OpenVideoCaptureDevice() {
-  talk_base::scoped_ptr<cricket::DeviceManagerInterface> dev_manager(
+  rtc::scoped_ptr<cricket::DeviceManagerInterface> dev_manager(
       cricket::DeviceManagerFactory::Create());
   if (!dev_manager->Init()) {
     LOG(LS_ERROR) << "Can't create device manager";
@@ -361,18 +362,18 @@ void Conductor::AddStreams() {
   if (active_streams_.find(kStreamLabel) != active_streams_.end())
     return;  // Already added.
 
-  talk_base::scoped_refptr<webrtc::AudioTrackInterface> audio_track(
+  rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track(
       peer_connection_factory_->CreateAudioTrack(
           kAudioLabel, peer_connection_factory_->CreateAudioSource(NULL)));
 
-  talk_base::scoped_refptr<webrtc::VideoTrackInterface> video_track(
+  rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track(
       peer_connection_factory_->CreateVideoTrack(
           kVideoLabel,
           peer_connection_factory_->CreateVideoSource(OpenVideoCaptureDevice(),
                                                       NULL)));
   main_wnd_->StartLocalRenderer(video_track);
 
-  talk_base::scoped_refptr<webrtc::MediaStreamInterface> stream =
+  rtc::scoped_refptr<webrtc::MediaStreamInterface> stream =
       peer_connection_factory_->CreateLocalMediaStream(kStreamLabel);
 
   stream->AddTrack(audio_track);
@@ -381,7 +382,7 @@ void Conductor::AddStreams() {
     LOG(LS_ERROR) << "Adding stream to PeerConnection failed";
   }
   typedef std::pair<std::string,
-                    talk_base::scoped_refptr<webrtc::MediaStreamInterface> >
+                    rtc::scoped_refptr<webrtc::MediaStreamInterface> >
       MediaStreamPair;
   active_streams_.insert(MediaStreamPair(stream->label(), stream));
   main_wnd_->SwitchToStreamingUI();

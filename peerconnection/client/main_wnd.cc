@@ -29,8 +29,8 @@
 
 #include <math.h>
 
-#include "talk/base/common.h"
-#include "talk/base/logging.h"
+#include "webrtc/base/common.h"
+#include "webrtc/base/logging.h"
 #include "talk/examples/peerconnection/client/defaults.h"
 
 ATOM MainWnd::wnd_class_ = 0;

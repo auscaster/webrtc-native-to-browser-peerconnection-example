@@ -28,18 +28,18 @@
 #include "talk/examples/peerconnection/client/conductor.h"
 #include "talk/examples/peerconnection/client/main_wnd.h"
 #include "talk/examples/peerconnection/client/peer_connection_client.h"
-#include "talk/base/win32socketinit.h"
-#include "talk/base/win32socketserver.h"
-#include "talk/base/openssladapter.h"
+#include "webrtc/base/win32socketinit.h"
+#include "webrtc/base/win32socketserver.h"
+#include "webrtc/base/ssladapter.h"
 
 
 int PASCAL wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
                     wchar_t* cmd_line, int cmd_show) {
-  talk_base::EnsureWinsockInit();
-  talk_base::Win32Thread w32_thread;
-  talk_base::ThreadManager::Instance()->SetCurrentThread(&w32_thread);
+  rtc::EnsureWinsockInit();
+  rtc::Win32Thread w32_thread;
+  rtc::ThreadManager::Instance()->SetCurrentThread(&w32_thread);
 
-	if (!talk_base::InitializeSSL(NULL) || !talk_base::InitializeSSLThread()) { 
+	if (!rtc::InitializeSSL(NULL) || !rtc::InitializeSSLThread()) { 
 	   LOG(LS_ERROR) << "Failed to initialize SSL"; 
 	   ASSERT(0);
 	} 
@@ -51,8 +51,8 @@ int PASCAL wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   }
 
   PeerConnectionClient client;
-  talk_base::scoped_refptr<Conductor> conductor(
-        new talk_base::RefCountedObject<Conductor>(&client, &wnd));
+  rtc::scoped_refptr<Conductor> conductor(
+        new rtc::RefCountedObject<Conductor>(&client, &wnd));
 
   // Main loop.
   MSG msg;
