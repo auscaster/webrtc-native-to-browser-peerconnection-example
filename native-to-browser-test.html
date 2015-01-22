@@ -1,6 +1,7 @@
 <html>
 <head>
 <title>PeerConnection server test page</title>
+</head>
 <script>
     var request = null;
     var hangingGet = null;
@@ -60,14 +61,25 @@
       remoteVideoElement.src = URL.createObjectURL(event.stream);
       remoteVideoElement.play();
     }
+
+    function sld_success_cb() {
+    }
+
+    function sld_failure_cb() {
+      console.log("setLocalDescription failed");
+    }
+
+    function aic_success_cb() {
+    }
+
+    function aic_failure_cb() {
+      console.log("addIceCandidate failed");
+    }
+
     
     function handlePeerMessage(peer_id, data) {
         ++messageCounter;
-        var str = "Message from '" + otherPeers[peer_id] + "'&nbsp;";
-        str += "<span id='toggle_" + messageCounter + "' onclick='toggleMe(this);' ";
-        str += "style='cursor: pointer'>+</span><br>";
-        str += "<blockquote id='msg_" + messageCounter + "' style='display:none'>";
-        str += data + "</blockquote>";
+        var str = "Message from '" + otherPeers[peer_id] + ":" + data;
         trace(str);
         
         var dataJson = JSON.parse(data);
@@ -77,7 +89,7 @@
             pc.setRemoteDescription(new RTCSessionDescription(dataJson), onRemoteSdpSucces, onRemoteSdpError);              
             pc.createAnswer(function(sessionDescription) {
                 console.log("Create answer:", sessionDescription);
-                pc.setLocalDescription(sessionDescription);
+                pc.setLocalDescription(sessionDescription,sld_success_cb,sld_failure_cb);
                 var data = JSON.stringify(sessionDescription);
                 sendToPeer(peer_id, data);
             }, function(error) { // error
@@ -87,7 +99,7 @@
         else {
             console.log("Adding ICE candiate ", dataJson);
             var candidate = new RTCIceCandidate({sdpMLineIndex: dataJson.sdpMLineIndex, candidate: dataJson.candidate});
-            pc.addIceCandidate(candidate);
+            pc.addIceCandidate(candidate, aic_success_cb, aic_failure_cb);
         }
     }    
     
@@ -190,6 +202,9 @@
           trace("error: " + e.description);
       }
     }
+
+    function dummy() {
+    }
     
     function sendToPeer(peer_id, data) {
       try {
@@ -203,13 +218,10 @@
               return;
           }
           var r = new XMLHttpRequest();
-          r.open("POST", server + "/message?peer_id=" + myId + "&to=" + peer_id, false);
+          r.onreadystatechange = dummy
+          r.open("POST", server + "/message?peer_id=" + myId + "&to=" + peer_id, true);
           r.setRequestHeader("Content-Type", "text/plain");
           r.send(data);
-          console.log(peer_id," Send ", data);
-          var dataJson = JSON.parse(data);
-          console.log(peer_id," send ", data);
-          r = null;
       } catch (e) {
           trace("send to peer error: " + e.description);
       }
@@ -224,7 +236,6 @@
         } else {
             document.getElementById("connect").disabled = true;
             document.getElementById("disconnect").disabled = false;
-            //document.getElementById("send").disabled = false;
             signIn();
         }
     }
@@ -250,7 +261,6 @@
       
         document.getElementById("connect").disabled = false;
         document.getElementById("disconnect").disabled = true;
-        document.getElementById("send").disabled = true;
     }
     
     window.onbeforeunload = disconnect;
@@ -297,14 +307,13 @@
         console.log('onRemoteSdpSucces');
     } 
 </script>
-</head>
 <body>
     <div id="container">
         <div id="remote">
             <video id="remote-video" width="50%" height="50%"></video>
         </div>
     </div>
-    Server: <input type="text" id="server" value="http://localhost:8888" /><br>
+    Server: <input type="text" id="server" value="http://135.222.138.136:8888" /><br>
     Your name: <input type="text" id="local" value="myclient"/>
     <button id="connect" onclick="connect();">Connect</button>
     <button disabled="true" id="disconnect" onclick="disconnect();">Disconnect</button>
