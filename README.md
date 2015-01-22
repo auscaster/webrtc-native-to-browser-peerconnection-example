@@ -1,7 +1,7 @@
 WebRTC native C++ to browser PeerConnection example
 ===============================================
 
-This is a fork of the original code from https://github.com/auscaster.
+This is a fork of the original code from https://github.com/auscaster/webrtc-native-to-browser-peerconnection-example.
 Modified to build and run with webrtc as of Jan 2015.
 Tested with Firefox (35.0) and Chrome (Version 39.0.2171.99).
 On Firefox I was successful accessing the native-to-browser-test.html
