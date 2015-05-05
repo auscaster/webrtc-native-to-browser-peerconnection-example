@@ -28,9 +28,9 @@
 #include "talk/examples/peerconnection/client/conductor.h"
 #include "talk/examples/peerconnection/client/main_wnd.h"
 #include "talk/examples/peerconnection/client/peer_connection_client.h"
-#include "talk/base/win32socketinit.h"
-#include "talk/base/win32socketserver.h"
-#include "talk/base/openssladapter.h"
+#include "webrtc/base/ssladapter.h"
+#include "webrtc/base/win32socketinit.h"
+#include "webrtc/base/win32socketserver.h"
 
 
 int PASCAL wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
